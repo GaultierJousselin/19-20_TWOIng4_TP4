@@ -1,43 +1,26 @@
 const express = require('express');
-const lodash = require('lodash');
+const router = express.Router();
 const axios = require("axios");
 
-const router = express.Router();
+var _ = require('lodash');
 
-const API_KEY = "bea8e09c";
-// Url API
-const API_URL = "http://www.omdbapi.com/";
+API_KEY = "bea8e09c";
+API_URL = "http://www.omdbapi.com/";
 
-let movies = [{
-    id: 1,
+let movies = []
 
-    movie: "La bête noire",
-
-    yearOfRelease: 1998,
-
-    duration: 87 /* en minutes*/,
-
-    actors: ["Jacques Lang", "Francois Hollande"],
-
-    poster: "String" /* lien vers une image d'affiche*/,
-
-    boxOffice: 2010 /* en USD$*/,
-
-    rottenTomatoesScore: 2
-}];
-
-/* GET movies listing. */
-router.get('/', (req, res) => {
+// GET movies listing. 
+router.get('/', (req, res, next) => {
     res.status(200).json({ 
       movies: movies 
-  });
-});
+  })
+})
 
-/* GET one movie. */
+// GET one movie. 
 router.get('/:id', (req, res) => {
   const id = req.params.id;
 
-  const movieSelected = lodash.find(movies, ["id", parseInt(id)]);
+  const movieSelected = _.find(movies, ["id", id ]);
   console.log("id", id, movieSelected);
   res.status(200).json({ 
     message: 'movie found',
@@ -46,12 +29,13 @@ router.get('/:id', (req, res) => {
 
 });
 
-/* Put new movie. */
-router.put('/', (req, res) => {
+
+// Put new movie. 
+router.put("/", (req, res, next) => {
   const {title} = req.body;
 
-  axios.get(`${API_URL}?t=${title}&appikey=${API_KEY}`).then(({data})=>{
-    const id = lodash.uniqueId();
+  axios.get(`${API_URL}?t=${title}&apikey=${API_KEY}`).then(({data}) => {
+    const id = _.uniqueId();
     const title = data.Title;
     const year = data.Year;
     const runtime = data.Runtime;
@@ -63,8 +47,8 @@ router.put('/', (req, res) => {
     movies.push(list)
   });
   res.status(200).json ({
-    movies,
     message: `Just added ${title} to the DataBase`,
+    movies
   });
 
   
@@ -75,17 +59,17 @@ router.post('/:id', (req,res) => {
   const id = req.params.id;
   const { movie } = req.body;
 
-  const movieToUpdate = lodash.find(movies, ["id", id]);
+  const movieToUpdate = _.find(movies, ["id", id]);
 
   movieToUpdate.movie = movie;
 
   res.status(200).json ({
-    message: `Hey le user ${movieToUpdate.id} a été modifié`,
+    message: `Hey le film ${movieToUpdate.id} a été modifié`,
     movie: movies
   });
 });
 
-/* Delete specific user. */
+//Delete specific user. 
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
 
@@ -99,3 +83,4 @@ router.delete('/:id', (req, res) => {
 });
 
 module.exports = router;
+
